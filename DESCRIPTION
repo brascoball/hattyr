@@ -1,0 +1,14 @@
+Package: hattyr
+Type: Package
+Title: Red Hat Specific Functions
+Version: 0.1.0
+Author: Don Chesworth
+Maintainer: Don Chesworth <dcheswor@redhat.com>
+Description: Red Hat specific functions for working with Red Hat quarters, and also providing Red Hat colors.
+License: GPL-3
+Imports:
+    zoo (>= 1.7-13),
+    lubridate (>= 1.5.6)
+Depends: R(>= 2.10)
+RoxygenNote: 5.0.1
+LazyData: TRUE
