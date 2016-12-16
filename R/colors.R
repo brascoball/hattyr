@@ -28,7 +28,7 @@ redhat_colors = function(color) {
 #' @export
 show_redhat_colors <- function() {
 
-  rh_hex <- rh_colors$color
+  rh_hex <- as.character(rh_colors$color)
   n <- length(rh_hex)
   ncol <- ceiling(sqrt(n))
   nrow <- ceiling(n / ncol)
