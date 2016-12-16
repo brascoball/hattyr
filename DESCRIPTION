@@ -1,7 +1,7 @@
 Package: hattyr
 Type: Package
 Title: Red Hat Specific Functions
-Version: 0.1.0
+Version: 0.1.1
 Author: Don Chesworth
 Maintainer: Don Chesworth <dcheswor@redhat.com>
 Description: Red Hat specific functions for working with Red Hat quarters, and also providing Red Hat colors.
