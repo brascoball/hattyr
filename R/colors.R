@@ -18,7 +18,7 @@ redhat_colors = function(color) {
 
 #' Show available Red Hat colors.
 #'
-#' (code primarily take from library(scales))
+#' @import graphics
 #'
 #'
 #' @examples
@@ -47,5 +47,4 @@ show_redhat_colors <- function() {
   rh_names <- c(rh_names, rep(NA, nrow * ncol - length(rh_names)))
   rh_names <- matrix(rh_names, ncol = ncol, byrow = TRUE)
   text(col(rh_hex) - 0.5, -row(rh_hex) + 0.5, rh_names, cex = 0.75)
-
 }
