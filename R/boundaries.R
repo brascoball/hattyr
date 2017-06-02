@@ -27,3 +27,33 @@ year_start_date = function(x) {
 year_end_date = function(x) {
   return(as.Date(as.yearqtr(as.Date(as.yearmon(x)) + months(10))) - months(10) - days(1))
 }
+
+#' Get get the start date of a given Red Hat fiscal quarter.
+#'
+#' @import zoo
+#' @import lubridate
+#' @param x The quarter for which to calculate the end of the fiscal year.
+#'
+#'
+#' @examples
+#' x <- rh_qtr_year_start("Q1FY18")
+#' y <- rh_qtr_year_start(previous_redhat_qtr())
+#' @export
+rh_qtr_year_start = function(x) {
+  return(as.Date(as.yearqtr(x, 'Q%qFY%y')) - months(19))
+}
+
+#' Get get the end date of a given Red Hat fiscal quarter.
+#'
+#' @import zoo
+#' @import lubridate
+#' @param x The quarter for which to calculate the end of the fiscal year.
+#'
+#'
+#' @examples
+#' x <- rh_qtr_year_start("Q1FY18")
+#' y <- rh_qtr_year_start(previous_redhat_qtr())
+#' @export
+rh_qtr_year_end = function(x) {
+  return(as.Date(as.yearqtr(x, 'Q%qFY%y')) - months(7) - days(1))
+}
