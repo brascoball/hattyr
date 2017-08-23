@@ -4,11 +4,15 @@
 \alias{redhat_colors}
 \title{Collect hexidecimal colors}
 \usage{
-redhat_colors(color)
+redhat_colors(color, partial = FALSE, exclude = FALSE)
 }
 \arguments{
 \item{color}{The Red Hat color(s) to be converted. Either a single color
 name, or a vector of color names.}
+
+\item{partial}{A logical scalar. Do you want to match partial color names?}
+
+\item{exclude}{A logical scalar. Do you want get all colors that don't match the color?}
 }
 \description{
 Collect hexidecimal colors
@@ -19,5 +23,8 @@ x <- redhat_colors("Purple")
 
 # Get a vector of colors
 y <- redhat_colors(c("Storage 2", "Gray 3", "Red Hat Red", "Gray 10"))
+z <- redhat_colors("Purple", partial = TRUE)
+non_grays <- redhat_colors(c("Gray", "Black", "White"), partial = TRUE, exclude = TRUE)
+
 }
 

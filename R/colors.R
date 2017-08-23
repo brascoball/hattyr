@@ -2,6 +2,8 @@
 #'
 #' @param color The Red Hat color(s) to be converted. Either a single color
 #'   name, or a vector of color names.
+#' @param partial  A logical scalar. Do you want to match partial color names?
+#' @param exclude A logical scalar. Do you want get all colors that don't match the color?
 #'
 #'
 #' @examples
@@ -10,10 +12,21 @@
 #'
 #' # Get a vector of colors
 #' y <- redhat_colors(c("Storage 2", "Gray 3", "Red Hat Red", "Gray 10"))
+#' z <- redhat_colors("Purple", partial = TRUE)
+#' non_grays <- redhat_colors(c("Gray", "Black", "White"), partial = TRUE, exclude = TRUE)
+#'
 #' @export
-redhat_colors = function(color) {
-  hex_number <- as.character(rh_colors[match(color, rh_colors$name),]$color)
-  return(hex_number)
+redhat_colors = function(color, partial = FALSE, exclude = FALSE) {
+  if (partial) {
+    if (length(color) > 1) color = paste(color, collapse = "|")
+    hex.numbers <- as.character(rh_colors[grep(color, rh_colors$name),]$color)
+  } else {
+    hex.numbers <- as.character(rh_colors[match(color, rh_colors$name),]$color)
+  }
+  if (exclude) {
+    hex.numbers <- as.character(rh_colors[!(rh_colors$color %in% hex.numbers),]$color)
+  }
+  return(hex.numbers)
 }
 
 #' Show available Red Hat colors.
