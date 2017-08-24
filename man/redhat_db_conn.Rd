@@ -4,25 +4,37 @@
 \alias{redhat_db_conn}
 \title{Connect to a database in R}
 \usage{
-redhat_db_conn(filename)
+redhat_db_conn(filename, env.passname)
 }
 \arguments{
 \item{filename}{the location of the database config file. Should contain the scheme,
 host, port, database (if applicable), classname, jars, and user. Password will be
 prompted.}
+
+\item{env.passname}{the name of the environment variable that is storing the
+obscured password.}
+}
+\value{
+redhat_db_conn returns a database connection that can be used for SQL queries
 }
 \description{
-Connect to a database in R
+Establish a connection to a JDBC or PostgreSQL database, and return that value
+in order to query the database.
 }
 \details{
 This function requires the user to have access to the database, have downloaded
 the driver, and set up the certificates on their computer. The process for using
 the package is to create a config file, then pass it along with the path:
 
-\code{vdm.conn <- redhat_db_conn("~/vdm.cfg").}
+\code{vdm.conn <- redhat_db_conn("~/.vdm.cfg")}
+
+\code{sales.conn <- redhat_db_conn("~/.sales.cfg")}
 
 Then, the created connection can be used with the DBI package:
 
-\code{DBI::dbGetQuery(vdm.conn, "SELECT * FROM APL_CEE_VDM.stg_gss_case LIMIT 10")}
+\code{DBI::dbGetQuery(vdm.conn, "SELECT id FROM APL_CEE_VDM.stg_gss_case LIMIT 10")}
+
+\code{DBI::dbGetQuery(sales.conn, "SELECT unique_identifier FROM
+rsds_ops_clv.customer_timeline_oracle_18q1 WHERE unique_identifier != '' LIMIT 10")}
 }
 
