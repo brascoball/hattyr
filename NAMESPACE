@@ -2,6 +2,7 @@
 
 export(redhat_colors)
 export(redhat_db_conn)
+export(redhat_qtr)
 export(redhatqtr)
 export(redhatqtr_dates)
 export(redhatqtr_start)

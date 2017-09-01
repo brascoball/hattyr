@@ -35,6 +35,18 @@ redhatqtr = function(x = Sys.Date(), previous = FALSE, old = FALSE) {
   return(tmp.qtrs)
 }
 
+#' Old function to get the Red Hat dates
+#'
+#' @import zoo
+#' @import lubridate
+#' @param x The date-type value to be converted. Either a date, date-type
+#'   string like '2016-04-25', or a yearmon using the zoo::as.yearmon()
+#'   function.
+#' @export
+redhat_qtr = function(x = Sys.Date()) {
+  return(redhatqtr(x, old = TRUE))
+}
+
 #' Get the first date of a quarter based on a Red Hat quarter
 #'
 #' @import zoo
