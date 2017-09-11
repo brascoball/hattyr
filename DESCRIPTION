@@ -10,6 +10,7 @@ Imports:
     zoo (>= 1.7-13),
     lubridate (>= 1.5.6),
     RJDBC (>= 0.2-5),
+    DBI (>= 0.7),
     jsonlite (>= 1.5),
     getPass (>= 0.1-1),
     urltools (>= 1.6.0),

@@ -9,7 +9,6 @@
 #' @import sodium
 #' @import DBI
 #' @import RJDBC
-#' @import RPostgres
 #' @param filename the location of the database config file. Should contain the scheme,
 #' host, port, database (if applicable), classname, jars, and user. Password will be
 #' prompted.
