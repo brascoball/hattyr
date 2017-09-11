@@ -12,10 +12,12 @@
 #' @param filename the location of the database config file. Should contain the scheme,
 #' host, port, database (if applicable), classname, jars, and user. Password will be
 #' prompted.
+#' @param instance if the config file has multiple instances in it (e.g. production
+#' and development), specific which instance to connect to.
 #' @param env.passname the name of the environment variable that is storing the
-#' obscured password.
+#' obscured password. Create this using \code{\link{set_env_pass}}
 #'
-#' @usage redhat_db_conn(filename, env.passname)
+#' @usage redhat_db_conn(filename, instance, env.passname)
 #'
 #' @details
 #' This function requires the user to have access to the database, have downloaded
@@ -37,12 +39,15 @@
 #' redhat_db_conn returns a database connection that can be used for SQL queries
 #'
 #' @export
-redhat_db_conn = function(filename, env.passname = NULL) {
+redhat_db_conn = function(filename, instance = NULL, env.passname = NULL) {
 
   # Read in the JSON file
-  db.cfg <- data.frame(read_json(filename), stringsAsFactors = FALSE)
+  db.cfg <- read_json(filename)
+  if (!is.null(instance)) db.cfg <- db.cfg[[instance]]
+  db.cfg <- data.frame(db.cfg, stringsAsFactors = FALSE)
   # If there isn't a specific database to connect to, make it NA, and get a
   # password if not in the config file
+  if (is.null(db.cfg$scheme)) db.cfg$scheme <- NA
   if (is.null(db.cfg$database)) db.cfg$database <- NA
   if (is.null(db.cfg$user)) db.cfg$user <- Sys.getenv("USER")
   if (is.null(db.cfg$password)) {
@@ -52,28 +57,29 @@ redhat_db_conn = function(filename, env.passname = NULL) {
       db.cfg$password <- getPass(msg="Enter the Database Password:")
     }
   }
-  # If it's VDM or bugzilla (a JDBC connection)
+  # If it's VDM, CEE Redshift or bugzilla (a JDBC connection)
   if (length(grep("jdbc", db.cfg$classname)) > 0) {
     # Create a JDBC url from the components
     db.url <- url_compose(data.frame(scheme = db.cfg$scheme,
                                      domain = db.cfg$host, port = db.cfg$port,
                                      path = db.cfg$database, parameter = NA, fragment = NA))
+
     # Create the JDBC driver
     drv <- JDBC(driverClass = db.cfg$classname,
                 classPath = db.cfg$jars,
                 identifier.quote="`")
     # Create the connection
     conn <- dbConnect(drv, db.url, user=db.cfg$user, password=db.cfg$password)
-  # If it's redshift (a postresql connection)
+  # If it's sales redshift (a postresql connection)
   } else {
     # Create the postgresql connection
     conn <- dbConnect(RPostgres::Postgres(), dbname = db.cfg$database,
                       host = db.cfg$host, port = db.cfg$port, sslmode = 'require',
                       user = db.cfg$user, password = db.cfg$password)
+
   }
   return(conn)
 }
-
 
 #' Create an obscured password to keep in as an environment variable
 #'
@@ -100,4 +106,92 @@ set_env_pass = function(passname) {
   tmp.line <- paste0(passname, '="', tmp.pass, '"')
   write(tmp.line, file="~/.Renviron", append=TRUE)
   readRenviron("~/.Renviron")
+}
+
+#' Read SQL scripts from a directory
+#'
+#' Read SQL scripts from a directory into R for use against a database.
+#'
+#' @import stringr
+#' @param base_path the directory holding the sql files
+#' @param sqlvars a list containing all variables you wish to set within your queries
+#' @param prefix a prefix from your SQL filenames if you want to remove before
+#' creating the data frames
+#' @param pattern a suffix to include in the data frame names
+#'
+#' @usage read_scripts(base_path, sqlvars, prefix, pattern)
+#'
+#' @details
+#' Just place all scripts in the same directory with a .sql extension, and provide
+#' the directory path. It's also possible to set any variables in your query
+#' with the format of ${variable}.
+#'
+#' @return
+#' sql.list returns a list of SQL queries with the future filename as the name
+#'
+#' @export
+read_scripts = function(base_path, sqlvars = list(), prefix = 'get_', pattern = '.df') {
+  list2env(sqlvars, envir = .GlobalEnv)
+  filelist <- list.files(base_path, pattern = "*.sql", ignore.case = TRUE, full.names = TRUE)
+  filenames <- str_split_fixed(filelist, "//", n=2)[,2]
+  filenames <- str_split_fixed(gsub(prefix, '', filenames), "[.]", n=2)[,1]
+  dfnames <- paste(filenames, pattern, sep='')
+  sql.list <- lapply(filelist, function(x) str_interp(paste(readLines(x, warn=F), collapse="\n")))
+  names(sql.list) <- dfnames
+  print("SQL query data imported from directory.")
+  return(sql.list)
+}
+
+#' Run SQL scripts on a database
+#'
+#' Run SQL scripts that are stored in a list on a database.
+#'
+#' @import DBI
+#' @param conn the database connection created using \code{\link{redhat_db_conn}}
+#' @param sql.list a list of queries created using \code{\link{read_scripts}}
+#'
+#' @usage run_scripts(conn, sql.list)
+#'
+#' @details
+#' After running \code{\link{redhat_db_conn}} and \code{\link{read_scripts}},
+#' use these parameters to read the database query data into R as data frames.
+#'
+#' @return
+#' nothing is returned. The output from the scripts will be added to your environment.
+#'
+#' @export
+run_scripts = function(conn, sql.list) {
+  df.list = list()
+  for (query in names(sql.list)) {
+    df.list[[query]] <- dbGetQuery(conn, statement = sql.list[[query]])
+  }
+  list2env(df.list, envir = .GlobalEnv)
+}
+
+
+#' Write a bunch of data frames to csv
+#'
+#' Write data frames matching a pattern to separate csv files.
+#'
+#' @import utils
+#' @param outdir the directory to drop the dataframes
+#' @param pattern a pattern for dataframes to output. The default is to
+#' include all data with the suffix ".df". Works well with \code{\link{run_scripts}}.
+#'
+#' @usage dfs_to_csv(outdir, pattern)
+#'
+#' @details
+#' Write data frames matching a pattern to separate csv files. Will
+#' write all matching the pattern of '.df' by default.
+#'
+#' @return
+#' nothing is returned. The output will be csv files.
+#'
+#' @export
+dfs_to_csv = function(outdir, pattern='.df') {
+  setwd(outdir)
+  suffix <- paste0('_', gsub('-', '', Sys.Date()), '.csv')
+  output_dfs <- as.list(ls(envir=.GlobalEnv, pattern=pattern))
+  lapply(output_dfs, function(x) write.csv(eval(as.name(x)), file=paste0(gsub(pattern, '', x), suffix)))
+  print('csv files were created.')
 }

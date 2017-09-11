@@ -4,15 +4,18 @@
 \alias{redhat_db_conn}
 \title{Connect to a database in R}
 \usage{
-redhat_db_conn(filename, env.passname)
+redhat_db_conn(filename, instance, env.passname)
 }
 \arguments{
 \item{filename}{the location of the database config file. Should contain the scheme,
 host, port, database (if applicable), classname, jars, and user. Password will be
 prompted.}
 
+\item{instance}{if the config file has multiple instances in it (e.g. production
+and development), specific which instance to connect to.}
+
 \item{env.passname}{the name of the environment variable that is storing the
-obscured password.}
+obscured password. Create this using \code{\link{set_env_pass}}}
 }
 \value{
 redhat_db_conn returns a database connection that can be used for SQL queries
