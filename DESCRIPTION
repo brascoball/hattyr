@@ -12,7 +12,7 @@ Imports:
     RJDBC (>= 0.2-5),
     Rcpp (>= 0.12.12-1),
     DBI (>= 0.7-12),
-    RPostgres (>= 0.1-5),
+    RPostgres (>= 0.1),
     jsonlite (>= 1.5),
     getPass (>= 0.1-1),
     urltools (>= 1.6.0),
