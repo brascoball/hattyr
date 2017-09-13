@@ -26,3 +26,16 @@ recent_file <- function(directory, reg_ex) {
   filename <- paste0(directory, filename)
   return(filename)
 }
+
+#' Combine portions of directories or urls with one slash
+#'
+#' Sometimes you can have a trailing slash, or not enough,
+#' @param ... strings to be pasted with one slash in between.
+#'
+#' @return
+#' slash_paste returns a string with only one slash between parts
+#'
+#' @export
+slash_paste = function(...) {
+  return(gsub('//', '/', paste0(..., '/')))
+}
