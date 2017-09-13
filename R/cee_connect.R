@@ -40,7 +40,7 @@
 #'
 #' @export
 redhat_db_conn = function(filename, instance = NULL, env.passname = NULL) {
-
+  if (!grepl("/", filename)) filename = slash_paste(normalizePath("~") , '/', filename)
   # Read in the JSON file
   db.cfg <- read_json(filename)
   if (!is.null(instance)) db.cfg <- db.cfg[[instance]]
