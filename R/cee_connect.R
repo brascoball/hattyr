@@ -165,6 +165,7 @@ run_scripts = function(conn, sql.list) {
   df.list = list()
   for (query in names(sql.list)) {
     df.list[[query]] <- dbGetQuery(conn, statement = sql.list[[query]])
+    print(paste(query, "created"))
   }
   list2env(df.list, envir = .GlobalEnv)
 }
