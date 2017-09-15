@@ -120,11 +120,13 @@ redhatqtr_dates = function(x = Sys.Date(), n = 4, current = FALSE) {
   } else {
     qtr_start <- as.Date(1:n, origin=Sys.Date())
     qtr_end <- as.Date(1:n, origin=Sys.Date())
+    qtr_days <- as.numeric(1:n)
     for (i in 1:n) {
       qtr_start[i] <- curr.start - months(3*i)
       qtr_end[i] <- curr.start - months(3*(i-1)) - days(1)
+      qtr_days[i] <- qtr_end[i] - qtr_start[i] + 1
     }
-    dates_list <- data.frame(qtr_start, qtr_end)
+    dates_list <- data.frame(qtr_start, qtr_end, qtr_days)
     dates_list <- dates_list[order(dates_list$qtr_start),]
     rownames(dates_list) <- NULL
     dates_list$qtr_name <- redhatqtr(dates_list$qtr_start)
